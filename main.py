@@ -24,11 +24,9 @@ class FsFile:
 		read_idx = 0
 		def read_bytes(n=1):
 			nonlocal read_idx
-			value = int.from_bytes(raw[
-				read_idx : read_idx+n
-			], 'little')
+			value = raw[read_idx : read_idx+n]
 			read_idx += n
-			return value
+			return int.from_bytes(value, 'little')
 
 		def check_margin():
 			return all(
@@ -46,7 +44,10 @@ class FsFile:
 
 		read_idx += 64
 
-		insts_len = (len(raw) - read_idx) // 4
+		inst_buffer_len = len(raw) - read_idx
+		assert inst_buffer_len % 16 == 0
+
+		insts_len = (inst_buffer_len - read_idx) // 16
 		insts = []
 		for _ in range(insts_len):
 			insts.append(IrNode(
@@ -58,11 +59,9 @@ class FsFile:
 
 		return cls(film_len, film_init_values, insts)
 
-
-
 def main():
+	#file = FsFile.parse("prg/basic_arith.fs")
 	file = FsFile.parse("prg/3d_renderer.fs")
-	print(file.insts[:100])
 
 
 if __name__ == '__main__':
