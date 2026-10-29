@@ -108,8 +108,7 @@ class IrNode:
 			case Opcode.SUBTRACT: base_arith("subsd")
 			case Opcode.MULTIPLY: base_arith("mulsd")
 			case Opcode.DIVIDE  : base_arith("divsd")
-			case Opcode.MOD:
-				print("MOD!!!!!")
+			case Opcode.MOD     : runtime_call("modulo")
 
 			case Opcode.UPDATE_CONSOLE: runtime_call("update_console")
 			case Opcode.PRINT         : runtime_call("print")
@@ -178,6 +177,7 @@ class FsFile:
 		emit("extrn print_numbers")
 		emit("extrn power")
 		emit("extrn update_console")
+		emit("extrn modulo")
 
 		emit("public film")
 		emit("public _compiled_entry")

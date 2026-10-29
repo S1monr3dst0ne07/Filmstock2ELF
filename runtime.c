@@ -49,6 +49,19 @@ void update_console()
 {
 	fflush(stdout);
 }
+void modulo(int a, int b, int dst)
+{
+	double num  = film[a];
+	double base = film[b];
+
+	double r = fmod(num, base);
+	double res = 0.0;
+	/**/ if (fabs(r) < FLT_EPSILON)    res = 0.0;
+	else if ((r < 0.0) ^ (base < 0.0)) res = r + base;
+	else                               res = r;
+
+	film[dst] = res;
+}
 
 void main()
 {
