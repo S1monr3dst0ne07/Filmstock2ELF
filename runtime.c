@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 extern double film[];
 
@@ -160,6 +161,14 @@ void list_set(int idx, int dst, int src)
 void list_length(int idx, int len)
 {
 	film[len] = (double)(_list_get(idx)->len);
+}
+
+
+void _time(int dst)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	film[dst] = ((double)ts.tv_sec * 1000.0) + ((double)ts.tv_nsec / 1000000.0);
 }
 
 

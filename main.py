@@ -162,6 +162,8 @@ class IrNode:
 			case Opcode.LIST_SET             : runtime_call("list_set")
 			case Opcode.LENGTH_OF_LIST       : runtime_call("list_length")
 
+			case Opcode.TIME                 : runtime_call("_time")
+
 
 			case x:
 				print(f"opcode {x} not implemented.")
@@ -243,6 +245,8 @@ class FsFile:
 		emit("extrn copy_from_list")
 		emit("extrn list_set")
 		emit("extrn list_length")
+
+		emit("extrn _time")
 
 		emit("public film")
 		emit("public _compiled_entry")
