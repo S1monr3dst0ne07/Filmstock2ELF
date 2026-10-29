@@ -2,6 +2,7 @@
 from dataclasses import dataclass as dc
 from enum import Enum, auto
 import subprocess
+import sys
 
 class Opcode(Enum):
 	COPY                    = 0
@@ -107,16 +108,13 @@ class IrNode:
 			case Opcode.SUBTRACT: base_arith("subsd")
 			case Opcode.MULTIPLY: base_arith("mulsd")
 			case Opcode.DIVIDE  : base_arith("divsd")
+			case Opcode.MOD:
+				print("MOD!!!!!")
 
-			case Opcode.UPDATE_CONSOLE:
-				# output buffer is not implemented,
-				# hence this opcode has not semantic
-				# interpretation.
-				pass
-
-			case Opcode.PRINT        : runtime_call("print")
-			case Opcode.PRINT_NUMBERS: runtime_call("print_numbers")
-			case Opcode.POWER        : runtime_call("power")
+			case Opcode.UPDATE_CONSOLE: runtime_call("update_console")
+			case Opcode.PRINT         : runtime_call("print")
+			case Opcode.PRINT_NUMBERS : runtime_call("print_numbers")
+			case Opcode.POWER         : runtime_call("power")
 
 			case x:
 				print(f"opcode {x} not implemented.")
@@ -158,7 +156,7 @@ class FsFile:
 		inst_buffer_len = len(raw) - read_idx
 		assert inst_buffer_len % 16 == 0
 
-		insts_len = (inst_buffer_len - read_idx) // 16
+		insts_len = inst_buffer_len // 16
 		insts = []
 		for _ in range(insts_len):
 			insts.append(IrNode(
@@ -179,6 +177,8 @@ class FsFile:
 		emit("extrn print")
 		emit("extrn print_numbers")
 		emit("extrn power")
+		emit("extrn update_console")
+
 		emit("public film")
 		emit("public _compiled_entry")
 
@@ -208,7 +208,7 @@ def build(asm):
 
 
 def main():
-	file = FsFile.parse("prg/basic_arith.fs")
+	file = FsFile.parse(sys.argv[1])
 	asm = file.compile()
 
 	build(asm)

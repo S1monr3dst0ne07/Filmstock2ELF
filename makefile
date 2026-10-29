@@ -10,7 +10,7 @@ main: .FORCE build.o runtime.o
 		
 
 build.o: .FORCE
-	python3 main.py
+	python3 main.py /tmp/Filmstock/build.filmstock
 	fasm build.asm build.o
 
 runtime.o: .FORCE runtime.c

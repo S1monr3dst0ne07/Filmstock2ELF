@@ -21,7 +21,7 @@ void print(int base, int len)
 void print_numbers(int base, int len)
 {
 	for (int i = 0; i < len; i++)
-		printf("%f\n", film[base + i]);
+		printf("%f", film[base + i]);
 	fflush(stdout);
 }
 
@@ -44,6 +44,10 @@ void power(int a, int b, int dst)
 	}
 
 	film[dst] = res;
+}
+void update_console()
+{
+	fflush(stdout);
 }
 
 void main()
