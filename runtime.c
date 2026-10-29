@@ -233,7 +233,7 @@ void rt_draw_triangles(int idx)
 
 
 void rt_end_drawing()          { EndDrawing(); }
-void rt_get_scroll()           {}
+void rt_get_scroll(int idx)    { film[idx] = GetMouseWheelMove();  }
 void rt_get_mouse_x(int idx)   { film[idx] = GetMousePosition().x; }
 void rt_get_mouse_y(int idx)   { film[idx] = GetMousePosition().y; }
 void rt_sleep(int idx)         { if (film[idx] > 0) usleep(film[idx] * 1000.0); }
