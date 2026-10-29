@@ -89,15 +89,14 @@ void _inc_len(list_t* l)
 {
 	if (l->len >= l->cap)
 		if (l->cap == 0) {
-			l->cap = 100000;
-			l->buf = malloc(sizeof(double) * 100000);
+			l->cap = 1;
+			l->buf = malloc(sizeof(double));
 		} else {
 			double* old = l->buf;
 			l->cap *= 2;
-			size_t s = sizeof(double) * l->cap;
-			free(l->buf);
-			l->buf = malloc(s);
-			memcpy(l->buf, old, s);
+			l->buf = malloc(sizeof(double) * l->cap);
+			memcpy(l->buf, old, sizeof(double) * l->len);
+			free(old);
 		}
 
 	l->len += 1;
