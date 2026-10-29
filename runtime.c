@@ -1,4 +1,5 @@
 
+#define _GNU_SOURCE
 #include <stddef.h> 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,6 +7,7 @@
 #include <float.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 extern double film[];
 
@@ -71,9 +73,10 @@ typedef struct
 } list_t;
 
 list_t matrix[1 << 16] = { 0 };
+#define _list_get(idx) (&matrix[(int)film[idx]])
 
 void new_list  (int idx) { }
-void empty_list(int idx) { matrix[idx].len = 0; }
+void empty_list(int idx) { _list_get(idx)->len = 0; }
 
 void _inc_len(list_t* l)
 {
@@ -91,8 +94,6 @@ void _inc_len(list_t* l)
 
 	l->len += 1;
 }
-
-#define _list_get(idx) (&matrix[(int)film[idx]])
 
 void add_list(int idx, int src)
 {
@@ -123,11 +124,22 @@ void print_list_numbers(int idx)
 			i < (len - 1) ? "%f, " : "%f", 
 			l->buf[i]
 		);
-	printf("]");
+	printf("]\n");
 }
 
+void sort_list(int idx, bool order)
+{
+	int _cmp(const void* _a, const void* _b, void* _order)
+	{
+		const double* a = _a;
+		const double* b = _b;
+		bool order = _order;
+		return (*a < *b) ^ order;
+	}
 
-
+	list_t* l = _list_get(idx);
+	qsort_r(l->buf, l->len, sizeof(double), _cmp, (void*)order);
+}
 
 
 void main()

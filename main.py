@@ -150,6 +150,7 @@ class IrNode:
 			case Opcode.ADD_LIST             : runtime_call("add_list")
 			case Opcode.PRINT_VECTOR         : runtime_call("print_list")
 			case Opcode.PRINT_VECTOR_NUMBERS : runtime_call("print_list_numbers")
+			case Opcode.SORT_LIST            : runtime_call("sort_list")
 
 			case x:
 				print(f"opcode {x} not implemented.")
@@ -219,6 +220,7 @@ class FsFile:
 		emit("extrn empty_list")
 		emit("extrn print_list")
 		emit("extrn print_list_numbers")
+		emit("extrn sort_list")
 
 		emit("public film")
 		emit("public _compiled_entry")
