@@ -150,6 +150,7 @@ class IrNode:
 			case Opcode.TAN           : runtime_call("_tan")
 			case Opcode.FLOOR         : runtime_call("_floor")
 			case Opcode.CEIL          : runtime_call("_ceil")
+			case Opcode.SQUARE_ROOT   : runtime_call("_sqrt")
 
 			case Opcode.NEW_LIST             : runtime_call("new_list")
 			case Opcode.EMPTY_LIST           : runtime_call("empty_list")
@@ -230,6 +231,7 @@ class FsFile:
 		emit("extrn _tan")
 		emit("extrn _floor")
 		emit("extrn _ceil")
+		emit("extrn _sqrt")
 
 		emit("extrn new_list")
 		emit("extrn add_list")

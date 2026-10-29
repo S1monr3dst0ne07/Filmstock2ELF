@@ -68,7 +68,7 @@ void _cos(int src, int dst) { film[dst] = cos(film[src]); }
 void _tan(int src, int dst) { film[dst] = tan(film[src]); }
 void _floor(int src, int dst) { film[dst] = floor(film[src]); }
 void _ceil (int src, int dst) { film[dst] = ceil (film[src]); }
-
+void _sqrt (int src, int dst) { film[dst] = sqrt (film[src]); }
 
 typedef struct
 {
