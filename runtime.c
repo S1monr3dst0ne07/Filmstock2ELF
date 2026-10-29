@@ -234,11 +234,21 @@ void rt_draw_triangles(int idx)
 
 void rt_end_drawing()          { EndDrawing(); }
 void rt_get_scroll()           {}
-void rt_get_mouse_x(int idx)   {  }
-void rt_get_mouse_y(int idx)   {  }
+void rt_get_mouse_x(int idx)   { film[idx] = GetMousePosition().x; }
+void rt_get_mouse_y(int idx)   { film[idx] = GetMousePosition().y; }
 void rt_sleep(int idx)         { if (film[idx] > 0) usleep(film[idx] * 1000.0); }
-void rt_mouse_pressed(int idx) { film[idx] = false; }
 void rt_set_color(int idx)     { uint64_t tmp = film[idx]; memcpy(&color, &tmp, 4); }
+void rt_mouse_pressed(int btn, int idx) 
+{ 
+	int raybtn;
+	switch (btn)
+	{
+		case 0: raybtn = MOUSE_LEFT_BUTTON;   break;
+		case 1: raybtn = MOUSE_RIGHT_BUTTON;  break;
+		case 2: raybtn = MOUSE_MIDDLE_BUTTON; break;
+	}
+	film[idx] = (double)IsMouseButtonDown(raybtn); 
+}
 
 
 
