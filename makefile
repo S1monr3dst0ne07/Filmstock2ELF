@@ -7,7 +7,9 @@ main: .FORCE build.o runtime.o
 		-z execstack \
 		build.o      \
 		runtime.o    \
-		-lm
+		-lm \
+		-lraylib -lX11 \
+
 		
 
 build.o: .FORCE

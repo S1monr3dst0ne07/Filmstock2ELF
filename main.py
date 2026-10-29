@@ -75,6 +75,8 @@ class Opcode(Enum):
 	LIST_STORE              = auto()
 
 
+extern_syms = set()
+
 @dc
 class IrNode:
 	opcode : int
@@ -156,34 +158,10 @@ class IrNode:
 				base_arith("cmpsd xmm0, xmm1,  0")
 				int2float(arg1)
 
-			case Opcode.PRINT         : runtime_call("print")
-			case Opcode.PRINT_NUMBERS : runtime_call("print_numbers")
-			case Opcode.UPDATE_CONSOLE: runtime_call("update_console")
-
-			case Opcode.POWER         : runtime_call("power")
-			case Opcode.MOD           : runtime_call("modulo")
-			case Opcode.SIN           : runtime_call("_sin")
-			case Opcode.COS           : runtime_call("_cos")
-			case Opcode.TAN           : runtime_call("_tan")
-			case Opcode.FLOOR         : runtime_call("_floor")
-			case Opcode.CEIL          : runtime_call("_ceil")
-			case Opcode.SQUARE_ROOT   : runtime_call("_sqrt")
-
-			case Opcode.NEW_LIST             : runtime_call("new_list")
-			case Opcode.EMPTY_LIST           : runtime_call("empty_list")
-			case Opcode.ADD_LIST             : runtime_call("add_list")
-			case Opcode.PRINT_VECTOR         : runtime_call("print_list")
-			case Opcode.PRINT_VECTOR_NUMBERS : runtime_call("print_list_numbers")
-			case Opcode.SORT_LIST            : runtime_call("sort_list")
-			case Opcode.COPY_FROM_LIST       : runtime_call("copy_from_list")
-			case Opcode.LIST_SET             : runtime_call("list_set")
-			case Opcode.LENGTH_OF_LIST       : runtime_call("list_length")
-
-			case Opcode.TIME                 : runtime_call("_time")
-
-
 			case x:
-				print(f"opcode {x} not implemented.")
+				fn_name = f"rt_{x.name.lower()}"
+				runtime_call(fn_name)
+				extern_syms.add(fn_name)
 
 @dc
 class FsFile:
@@ -240,30 +218,6 @@ class FsFile:
 
 		# headers
 		emit("format ELF64")
-		emit("extrn print")
-		emit("extrn print_numbers")
-		emit("extrn update_console")
-
-		emit("extrn power")
-		emit("extrn modulo")
-		emit("extrn _sin")
-		emit("extrn _cos")
-		emit("extrn _tan")
-		emit("extrn _floor")
-		emit("extrn _ceil")
-		emit("extrn _sqrt")
-
-		emit("extrn new_list")
-		emit("extrn add_list")
-		emit("extrn empty_list")
-		emit("extrn print_list")
-		emit("extrn print_list_numbers")
-		emit("extrn sort_list")
-		emit("extrn copy_from_list")
-		emit("extrn list_set")
-		emit("extrn list_length")
-
-		emit("extrn _time")
 
 		emit("public film")
 		emit("public _compiled_entry")
@@ -275,6 +229,10 @@ class FsFile:
 		for idx, inst in enumerate(self.insts):
 			emit(f"inst_{idx}:")
 			inst.compile(emit, self)
+
+		# mark runtime functions as external symbols
+		for sym in extern_syms:
+			emit(f"extrn {sym}")
 
 		# exit(0)
 		emit("mov rax, 60")

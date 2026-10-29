@@ -10,9 +10,11 @@
 #include <stdbool.h>
 #include <time.h>
 
+#include <raylib.h>
+
 extern double film[];
 
-void print(int base, int len)
+void rt_print(int base, int len)
 {
 	char buf[len + 1];
 	buf[len] = '\0';
@@ -21,17 +23,17 @@ void print(int base, int len)
 
 	printf("%s", buf);
 }
-void print_numbers(int base, int len)
+void rt_print_numbers(int base, int len)
 {
 	for (int i = 0; i < len; i++)
 		printf("%f", film[base + i]);
 }
-void update_console()
+void rt_update_console()
 {
 	fflush(stdout);
 }
 
-void power(int a, int b, int dst)
+void rt_power(int a, int b, int dst)
 {
 	double base = film[a];
 	double exp  = film[b];
@@ -51,7 +53,7 @@ void power(int a, int b, int dst)
 
 	film[dst] = res;
 }
-void modulo(int a, int b, int dst)
+void rt_modulo(int a, int b, int dst)
 {
 	double num  = film[a];
 	double base = film[b];
@@ -64,12 +66,12 @@ void modulo(int a, int b, int dst)
 
 	film[dst] = res;
 }
-void _sin(int src, int dst) { film[dst] = sin(film[src]); }
-void _cos(int src, int dst) { film[dst] = cos(film[src]); }
-void _tan(int src, int dst) { film[dst] = tan(film[src]); }
-void _floor(int src, int dst) { film[dst] = floor(film[src]); }
-void _ceil (int src, int dst) { film[dst] = ceil (film[src]); }
-void _sqrt (int src, int dst) { film[dst] = sqrt (film[src]); }
+void rt_sin(int src, int dst) { film[dst] = sin(film[src]); }
+void rt_cos(int src, int dst) { film[dst] = cos(film[src]); }
+void rt_tan(int src, int dst) { film[dst] = tan(film[src]); }
+void rt_floor(int src, int dst) { film[dst] = floor(film[src]); }
+void rt_ceil (int src, int dst) { film[dst] = ceil (film[src]); }
+void rt_square_root (int src, int dst) { film[dst] = sqrt (film[src]); }
 
 typedef struct
 {
@@ -82,8 +84,8 @@ list_t matrix[1 << 16] = { 0 };
 int matrix_bump = 0;
 #define _list_get(idx) (&matrix[(int)film[idx]])
 
-void new_list  (int idx) { film[idx] = (double)(matrix_bump++); }
-void empty_list(int idx) { _list_get(idx)->len = 0; }
+void rt_new_list  (int idx) { film[idx] = (double)(matrix_bump++); }
+void rt_empty_list(int idx) { _list_get(idx)->len = 0; }
 
 void _inc_len(list_t* l)
 {
@@ -102,13 +104,13 @@ void _inc_len(list_t* l)
 	l->len += 1;
 }
 
-void add_list(int idx, int src)
+void rt_add_list(int idx, int src)
 {
 	list_t* l = _list_get(idx);
 	_inc_len(l);
 	l->buf[l->len - 1] = film[src];
 }
-void print_list(int idx)
+void rt_print_list(int idx)
 {
 	list_t* l = _list_get(idx);
 	size_t len = l->len;
@@ -120,7 +122,7 @@ void print_list(int idx)
 
 	printf("%s", buf);
 }
-void print_list_numbers(int idx)
+void rt_print_list_numbers(int idx)
 {
 	list_t* l = _list_get(idx);
 	size_t len = l->len;
@@ -134,7 +136,7 @@ void print_list_numbers(int idx)
 	printf("]\n");
 }
 
-void sort_list(int idx, bool order)
+void rt_sort_list(int idx, bool order)
 {
 	int _cmp(const void* _a, const void* _b, void* _order)
 	{
@@ -147,32 +149,70 @@ void sort_list(int idx, bool order)
 	list_t* l = _list_get(idx);
 	qsort_r(l->buf, l->len, sizeof(double), _cmp, (void*)order);
 }
-void copy_from_list(int idx, int src, int dst)
+void rt_copy_from_list(int idx, int src, int dst)
 {
 	list_t* l = _list_get(idx);
 	film[dst] = l->buf[src];
 }
-void list_set(int idx, int dst, int src)
+void rt_list_set(int idx, int dst, int src)
 {
 	list_t* l = _list_get(idx);
 	l->buf[dst] = film[src];
 }
-void list_length(int idx, int len)
+void rt_length_of_list(int idx, int len)
 {
 	film[len] = (double)(_list_get(idx)->len);
 }
 
 
-void _time(int dst)
+void rt_time(int dst)
 {
 	struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 	film[dst] = ((double)ts.tv_sec * 1000.0) + ((double)ts.tv_nsec / 1000000.0);
 }
 
-
 void main()
 {
 	extern void _compiled_entry();
 	_compiled_entry();
 }
+
+
+
+
+
+// --- raylib stuff from here on out ---
+
+void rt_get_width (int idx) { film[idx] = GetScreenWidth (); }
+void rt_get_height(int idx) { film[idx] = GetScreenHeight(); }
+
+void rt_begin_drawing()
+{
+	if (WindowShouldClose()) exit(0);
+
+	static bool need_init = true;
+	if (need_init)
+	{
+		SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    	InitWindow(800, 600, "Filmstock");
+	}
+
+	BeginDrawing();
+}
+void rt_end_drawing()
+{
+	EndDrawing();
+}
+
+void rt_draw_triangles()  {}
+void rt_set_color()       {}
+void rt_get_scroll()      {}
+void rt_get_mouse_x()     {}
+void rt_get_mouse_y()     {}
+void rt_sleep()           {}
+void rt_mouse_pressed()   {}
+
+
+
+
