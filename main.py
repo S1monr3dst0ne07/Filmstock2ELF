@@ -118,7 +118,11 @@ class IrNode:
 			case Opcode.SUBTRACT: base_arith("subsd xmm0, xmm1")
 			case Opcode.MULTIPLY: base_arith("mulsd xmm0, xmm1")
 			case Opcode.DIVIDE  : base_arith("divsd xmm0, xmm1")
-			case Opcode.NOT     : emit(f"not qword [film+{arg1}]")
+			case Opcode.NOT     :
+				emit(f"movq xmm0, [film+{arg1}]")
+				emit("movq xmm1, [_float_zero]")
+				emit("cmpsd xmm0, xmm1, 0")
+				emit(f"movq [film+{arg1}], xmm0")
 			case Opcode.ITERATE : 
 				emit(f"movq  xmm0, [film + {ptr1}]")
 				emit(f"addsd xmm0, [_float_one]")
@@ -133,8 +137,8 @@ class IrNode:
 				emit(f"jmp inst_{jmp_decode(arg1)}")
 			case Opcode.JUMP_IF: 
 				emit(f"mov rax, [film+{arg1}]")
-				emit(f"cmp rax, 0")
-				emit(f"jne inst_{jmp_decode(arg2)}")
+				emit(f"test rax, rax")
+				emit(f"jnz inst_{jmp_decode(arg2)}")
 
 			case Opcode.IS_GREATER: base_arith("cmpsd xmm0, xmm1, 14")
 			case Opcode.IS_EQUAL  : base_arith("cmpsd xmm0, xmm1,  0")
@@ -271,7 +275,8 @@ class FsFile:
 			value = self.film_init_values.get(i) or 0
 			emit(f"dq {value}")
 
-		emit("_float_one: dq 1.0")
+		emit("_float_one : dq 1.0")
+		emit("_float_zero: dq 0.0")
 
 		return '\n'.join(output)
 
