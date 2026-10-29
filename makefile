@@ -10,7 +10,8 @@ main: .FORCE build.o runtime.o
 		
 
 build.o: .FORCE
-	python3 main.py prg/flow_control.fs
+	python3 main.py prg/list_basics.fs
+	#python3 main.py prg/3d_renderer.fs
 	fasm build.asm build.o
 
 runtime.o: .FORCE runtime.c
