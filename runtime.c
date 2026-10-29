@@ -25,6 +25,10 @@ void print_numbers(int base, int len)
 	for (int i = 0; i < len; i++)
 		printf("%f", film[base + i]);
 }
+void update_console()
+{
+	fflush(stdout);
+}
 
 void power(int a, int b, int dst)
 {
@@ -46,10 +50,6 @@ void power(int a, int b, int dst)
 
 	film[dst] = res;
 }
-void update_console()
-{
-	fflush(stdout);
-}
 void modulo(int a, int b, int dst)
 {
 	double num  = film[a];
@@ -63,6 +63,11 @@ void modulo(int a, int b, int dst)
 
 	film[dst] = res;
 }
+void _sin(int src, int dst) { film[dst] = sin(film[src]); }
+void _cos(int src, int dst) { film[dst] = cos(film[src]); }
+void _tan(int src, int dst) { film[dst] = tan(film[src]); }
+void _floor(int src, int dst) { film[dst] = floor(film[src]); }
+void _ceil (int src, int dst) { film[dst] = ceil (film[src]); }
 
 
 typedef struct
@@ -139,6 +144,16 @@ void sort_list(int idx, bool order)
 
 	list_t* l = _list_get(idx);
 	qsort_r(l->buf, l->len, sizeof(double), _cmp, (void*)order);
+}
+void copy_from_list(int idx, int src, int dst)
+{
+	list_t* l = _list_get(idx);
+	film[dst] = l->buf[src];
+}
+void list_set(int idx, int dst, int src)
+{
+	list_t* l = _list_get(idx);
+	l->buf[dst] = film[src];
 }
 
 

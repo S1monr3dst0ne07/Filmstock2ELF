@@ -118,7 +118,6 @@ class IrNode:
 			case Opcode.SUBTRACT: base_arith("subsd xmm0, xmm1")
 			case Opcode.MULTIPLY: base_arith("mulsd xmm0, xmm1")
 			case Opcode.DIVIDE  : base_arith("divsd xmm0, xmm1")
-			case Opcode.MOD     : runtime_call("modulo")
 			case Opcode.NOT     : emit(f"not qword [film+{arg1}]")
 			case Opcode.ITERATE : 
 				emit(f"movq  xmm0, [film + {ptr1}]")
@@ -140,10 +139,17 @@ class IrNode:
 			case Opcode.IS_GREATER: base_arith("cmpsd xmm0, xmm1, 14")
 			case Opcode.IS_EQUAL  : base_arith("cmpsd xmm0, xmm1,  0")
 
-			case Opcode.UPDATE_CONSOLE: runtime_call("update_console")
 			case Opcode.PRINT         : runtime_call("print")
 			case Opcode.PRINT_NUMBERS : runtime_call("print_numbers")
+			case Opcode.UPDATE_CONSOLE: runtime_call("update_console")
+
 			case Opcode.POWER         : runtime_call("power")
+			case Opcode.MOD           : runtime_call("modulo")
+			case Opcode.SIN           : runtime_call("_sin")
+			case Opcode.COS           : runtime_call("_cos")
+			case Opcode.TAN           : runtime_call("_tan")
+			case Opcode.FLOOR         : runtime_call("_floor")
+			case Opcode.CEIL          : runtime_call("_ceil")
 
 			case Opcode.NEW_LIST             : runtime_call("new_list")
 			case Opcode.EMPTY_LIST           : runtime_call("empty_list")
@@ -151,6 +157,9 @@ class IrNode:
 			case Opcode.PRINT_VECTOR         : runtime_call("print_list")
 			case Opcode.PRINT_VECTOR_NUMBERS : runtime_call("print_list_numbers")
 			case Opcode.SORT_LIST            : runtime_call("sort_list")
+			case Opcode.COPY_FROM_LIST       : runtime_call("copy_from_list")
+			case Opcode.LIST_SET             : runtime_call("list_set")
+
 
 			case x:
 				print(f"opcode {x} not implemented.")
@@ -212,19 +221,29 @@ class FsFile:
 		emit("format ELF64")
 		emit("extrn print")
 		emit("extrn print_numbers")
-		emit("extrn power")
 		emit("extrn update_console")
+
+		emit("extrn power")
 		emit("extrn modulo")
+		emit("extrn _sin")
+		emit("extrn _cos")
+		emit("extrn _tan")
+		emit("extrn _floor")
+		emit("extrn _ceil")
+
 		emit("extrn new_list")
 		emit("extrn add_list")
 		emit("extrn empty_list")
 		emit("extrn print_list")
 		emit("extrn print_list_numbers")
 		emit("extrn sort_list")
+		emit("extrn copy_from_list")
+		emit("extrn list_set")
 
 		emit("public film")
 		emit("public _compiled_entry")
 
+		emit("section '.text'")
 		emit("_compiled_entry:")
 		emit("add rsp, 8") #remove caller address
 
@@ -238,6 +257,7 @@ class FsFile:
 		emit("syscall")
 
 		# film
+		emit("section '.data'")
 		emit("film:")
 		for i in range(self.film_len):
 			value = self.film_init_values.get(i) or 0
