@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <raylib.h>
 
@@ -152,12 +153,12 @@ void rt_sort_list(int idx, bool order)
 void rt_copy_from_list(int idx, int src, int dst)
 {
 	list_t* l = _list_get(idx);
-	film[dst] = l->buf[src];
+	film[dst] = l->buf[(int)film[src]];
 }
 void rt_list_set(int idx, int dst, int src)
 {
 	list_t* l = _list_get(idx);
-	l->buf[dst] = film[src];
+	l->buf[(int)film[dst]] = film[src];
 }
 void rt_length_of_list(int idx, int len)
 {
@@ -189,30 +190,55 @@ void rt_get_height(int idx) { film[idx] = GetScreenHeight(); }
 
 void rt_begin_drawing()
 {
-	if (WindowShouldClose()) exit(0);
-
 	static bool need_init = true;
-	printf("INIT\n");
 	if (need_init)
 	{
 		SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     	InitWindow(800, 600, "Filmstock");
+		need_init = false;
 	}
 
+	if (WindowShouldClose()) exit(0);
 	BeginDrawing();
 }
-void rt_end_drawing()
+
+Color color;
+
+void rt_draw_triangles(int idx)
 {
-	EndDrawing();
+	void draw_triangle_auto_wind(Vector2 v1, Vector2 v2, Vector2 v3, Color color)
+	{
+		if ((v2.x - v1.x) * (v3.y - v1.y) - (v2.y - v1.y) * (v3.x - v1.x) > 0)
+			DrawTriangle(v1, v3, v2, color);
+		else
+			DrawTriangle(v1, v2, v3, color);
+	}
+
+    list_t* l = _list_get(idx);
+    double* points = l->buf;
+
+	Vector2 v1, v2, v3;
+
+	double cursorX = 0;
+	double cursorY = 0;
+    for (int i = 0; i < l->len;) 
+    {
+    	v1.x = points[i++] + cursorX; v1.y = points[i++] + cursorY;
+    	v2.x = points[i++] + cursorX; v2.y = points[i++] + cursorY;
+    	v3.x = points[i++] + cursorX; v3.y = points[i++] + cursorY;
+
+        draw_triangle_auto_wind(v1, v2, v3, color);
+    }
 }
 
-void rt_draw_triangles()  {}
-void rt_set_color()       {}
-void rt_get_scroll()      {}
-void rt_get_mouse_x()     {}
-void rt_get_mouse_y()     {}
-void rt_sleep()           {}
-void rt_mouse_pressed()   {}
+
+void rt_end_drawing()          { EndDrawing(); }
+void rt_get_scroll()           {}
+void rt_get_mouse_x(int idx)   {  }
+void rt_get_mouse_y(int idx)   {  }
+void rt_sleep(int idx)         { if (film[idx] > 0) usleep(film[idx] * 1000.0); }
+void rt_mouse_pressed(int idx) { film[idx] = false; }
+void rt_set_color(int idx)     { uint64_t tmp = film[idx]; memcpy(&color, &tmp, 4); }
 
 
 
