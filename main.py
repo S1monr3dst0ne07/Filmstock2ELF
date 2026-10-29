@@ -179,9 +179,11 @@ class FsFile:
 		emit("extrn print")
 		emit("extrn print_numbers")
 		emit("extrn power")
-		emit("public _start")
 		emit("public film")
-		emit("_start:")
+		emit("public _compiled_entry")
+
+		emit("_compiled_entry:")
+		emit("add rsp, 8") #remove caller address
 
 		for inst in self.insts:
 			inst.compile(emit)
