@@ -10,7 +10,7 @@ main: .FORCE build.o runtime.o
 		
 
 build.o: .FORCE
-	python3 main.py prg/basic_arith.fs
+	python3 main.py prg/flow_control.fs
 	fasm build.asm build.o
 
 runtime.o: .FORCE runtime.c
