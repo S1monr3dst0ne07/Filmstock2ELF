@@ -192,6 +192,7 @@ void rt_begin_drawing()
 	if (WindowShouldClose()) exit(0);
 
 	static bool need_init = true;
+	printf("INIT\n");
 	if (need_init)
 	{
 		SetConfigFlags(FLAG_WINDOW_RESIZABLE);

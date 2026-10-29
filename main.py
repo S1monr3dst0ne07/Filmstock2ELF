@@ -101,12 +101,11 @@ class IrNode:
 			emit(f"mov rdx, {arg3}")
 			emit(f"call {name}")
 
-		def int2float(idx):
-			emit(f"cvtsi2sd xmm1, [film + {idx}]")
-			emit(f"movq     [film + {idx}], xmm1")
-		def float2int(idx):
-			emit(f"cvtsd2si rax, [film + {idx}]")
-			emit(f"mov      [film + {idx}], rax")
+		def int2float(ptr):
+			emit(f"cvtsi2sd xmm1, [film + {ptr}]")
+			emit(f"movq     [film + {ptr}], xmm1")
+		def normalize(ptr):
+			emit(f"and qword [film + {ptr}], 1")
 
 		def jmp_decode(idx):
 			if idx not in file.film_init_values:
@@ -128,11 +127,12 @@ class IrNode:
 			case Opcode.MULTIPLY: base_arith("mulsd xmm0, xmm1")
 			case Opcode.DIVIDE  : base_arith("divsd xmm0, xmm1")
 			case Opcode.NOT     :
-				emit(f"movq xmm0, [film+{arg1}]")
-				emit("movq xmm1, [_float_zero]")
+				emit(f"movq xmm0, [film+{ptr1}]")
+				emit( "movq xmm1, [_float_zero]")
 				emit("cmpsd xmm0, xmm1, 0")
-				emit(f"movq [film+{arg1}], xmm0")
-				int2float(arg1)
+				emit(f"movq [film+{ptr2}], xmm0")
+				normalize(ptr2)
+				int2float(ptr2)
 			case Opcode.ITERATE : 
 				emit(f"movq  xmm0, [film + {ptr1}]")
 				emit(f"addsd xmm0, [_float_one]")
@@ -146,17 +146,21 @@ class IrNode:
 			case Opcode.JUMP: 
 				emit(f"jmp inst_{jmp_decode(arg1)}")
 			case Opcode.JUMP_IF: 
-				float2int(arg1)
-				emit(f"mov rax, [film+{arg1}]")
+				emit(f"movq xmm0, [film+{ptr1}]")
+				emit(f"movq xmm1, [_float_zero]")
+				emit("cmpsd xmm0, xmm1, 0")
+				emit("movq rax, xmm0")
 				emit(f"test rax, rax")
-				emit(f"jnz inst_{jmp_decode(arg2)}")
+				emit(f"jz inst_{jmp_decode(arg2)}")
 
 			case Opcode.IS_GREATER:
 				base_arith("cmpsd xmm0, xmm1, 14")
-				int2float(arg1)
+				normalize(ptr3)
+				int2float(ptr3)
 			case Opcode.IS_EQUAL  : 
 				base_arith("cmpsd xmm0, xmm1,  0")
-				int2float(arg1)
+				normalize(ptr3)
+				int2float(ptr3)
 
 			case x:
 				fn_name = f"rt_{x.name.lower()}"
