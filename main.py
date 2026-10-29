@@ -99,6 +99,13 @@ class IrNode:
 			emit(f"mov rdx, {arg3}")
 			emit(f"call {name}")
 
+		def int2float(idx):
+			emit(f"cvtsi2sd xmm1, [film + {idx}]")
+			emit(f"movq     [film + {idx}], xmm1")
+		def float2int(idx):
+			emit(f"cvtsd2si rax, [film + {idx}]")
+			emit(f"mov      [film + {idx}], rax")
+
 		def jmp_decode(idx):
 			if idx not in file.film_init_values:
 				print("indirect jumps not supporsed.")
@@ -123,6 +130,7 @@ class IrNode:
 				emit("movq xmm1, [_float_zero]")
 				emit("cmpsd xmm0, xmm1, 0")
 				emit(f"movq [film+{arg1}], xmm0")
+				int2float(arg1)
 			case Opcode.ITERATE : 
 				emit(f"movq  xmm0, [film + {ptr1}]")
 				emit(f"addsd xmm0, [_float_one]")
@@ -136,12 +144,17 @@ class IrNode:
 			case Opcode.JUMP: 
 				emit(f"jmp inst_{jmp_decode(arg1)}")
 			case Opcode.JUMP_IF: 
+				float2int(arg1)
 				emit(f"mov rax, [film+{arg1}]")
 				emit(f"test rax, rax")
 				emit(f"jnz inst_{jmp_decode(arg2)}")
 
-			case Opcode.IS_GREATER: base_arith("cmpsd xmm0, xmm1, 14")
-			case Opcode.IS_EQUAL  : base_arith("cmpsd xmm0, xmm1,  0")
+			case Opcode.IS_GREATER:
+				base_arith("cmpsd xmm0, xmm1, 14")
+				int2float(arg1)
+			case Opcode.IS_EQUAL  : 
+				base_arith("cmpsd xmm0, xmm1,  0")
+				int2float(arg1)
 
 			case Opcode.PRINT         : runtime_call("print")
 			case Opcode.PRINT_NUMBERS : runtime_call("print_numbers")
