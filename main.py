@@ -160,6 +160,7 @@ class IrNode:
 			case Opcode.SORT_LIST            : runtime_call("sort_list")
 			case Opcode.COPY_FROM_LIST       : runtime_call("copy_from_list")
 			case Opcode.LIST_SET             : runtime_call("list_set")
+			case Opcode.LENGTH_OF_LIST       : runtime_call("list_length")
 
 
 			case x:
@@ -241,6 +242,7 @@ class FsFile:
 		emit("extrn sort_list")
 		emit("extrn copy_from_list")
 		emit("extrn list_set")
+		emit("extrn list_length")
 
 		emit("public film")
 		emit("public _compiled_entry")

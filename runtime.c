@@ -78,21 +78,23 @@ typedef struct
 } list_t;
 
 list_t matrix[1 << 16] = { 0 };
+int matrix_bump = 0;
 #define _list_get(idx) (&matrix[(int)film[idx]])
 
-void new_list  (int idx) { }
+void new_list  (int idx) { film[idx] = (double)(matrix_bump++); }
 void empty_list(int idx) { _list_get(idx)->len = 0; }
 
 void _inc_len(list_t* l)
 {
 	if (l->len >= l->cap)
 		if (l->cap == 0) {
-			l->cap = 1;
-			l->buf = malloc(sizeof(double));
+			l->cap = 100000;
+			l->buf = malloc(sizeof(double) * 100000);
 		} else {
 			double* old = l->buf;
 			l->cap *= 2;
 			size_t s = sizeof(double) * l->cap;
+			free(l->buf);
 			l->buf = malloc(s);
 			memcpy(l->buf, old, s);
 		}
@@ -154,6 +156,10 @@ void list_set(int idx, int dst, int src)
 {
 	list_t* l = _list_get(idx);
 	l->buf[dst] = film[src];
+}
+void list_length(int idx, int len)
+{
+	film[len] = (double)(_list_get(idx)->len);
 }
 
 
