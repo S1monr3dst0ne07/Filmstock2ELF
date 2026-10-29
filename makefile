@@ -3,9 +3,10 @@ run: .FORCE main
 	./main
 
 main: .FORCE build.o runtime.o
-	cc  -o main \
+	cc -o main     \
 		build.o    \
 		runtime.o  \
+		-lm
 		
 
 build.o: .FORCE
