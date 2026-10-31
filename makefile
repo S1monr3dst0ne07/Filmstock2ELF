@@ -13,7 +13,7 @@ main: .FORCE build.o runtime.o
 		
 
 build.o: .FORCE
-	python3 main.py prg/3d_renderer.fs
+	python3 main.py tmp.fs
 	fasm build.asm build.o -m 1000000
 
 runtime.o: .FORCE runtime.c
