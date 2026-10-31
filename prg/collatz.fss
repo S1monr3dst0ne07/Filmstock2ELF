@@ -1,0 +1,152 @@
+#define STATE_CHECK 1
+#define STATE_RECURSE 2
+#define STATE_PART 3
+
+// Stack top
+var top = -1
+
+var stack = lnew()
+
+var execution_stack = lnew()
+
+// This is where we add pieces of code to the function.
+// So let's implement the Collatz Sequence using recursion.
+
+//  int collatz_length(int i, int d) {
+//      printf("%d\n", i);
+//
+//      if (i <= 1) {
+//         printf("We are done!\n");
+//         return d;
+//      }
+//      if (i % 2 == 0) {
+//          i /= 2;
+//      }
+//      else {
+//          i = i * 3 + 1;
+//      }
+//
+//      int depth = collatz_length(i, d+1);
+//
+//      printf("This line is only to show that the recursion can be in the middle of the code!")
+//      return depth;
+//  }
+
+// As such we can split this code into three states.
+// STATE_CHECK -> Print i value, check if we are done. If not push State_recurse.
+// STATE_RECURSE -> Change the value of i, Push STATE_PART and then push STATE_CHECK.
+// STATE_PART -> Print the "This line is only to show part", pop the stack.
+
+// We can push these states onto the execution stack.
+
+// For the stack let's always push the two arguments, the return value:
+// Stack = [..., i, d, return, i, d, return]
+
+#macro pop_stack() {
+    for var i = 0; i < 3; it(i) {
+        stack.remove(top)
+        top -= 1
+    }
+
+    top = stack.len() - 1
+}
+
+#macro push_stack(i, d, return) {
+    stack.add($i)
+    stack.add($d)
+    stack.add($return)
+
+    top = stack.len() - 1
+}
+
+#macro state_check() {
+    var __d = stack[top - 1]
+    var __i = stack[top - 2]
+
+    printNum(__i)
+    nl()
+
+    if (__i <= 1) {
+        print("We are done!")
+        nl()
+
+        // Write return value
+        stack[top] = __d
+    }
+    else {
+        execution_stack.add(STATE_RECURSE)
+    }
+}
+
+#macro state_recurse() {
+    var __i = stack[top - 2]
+    var __new_d = stack[top - 1] + 1
+
+    if ((__i % 2) == 0) {
+        __i /= 2
+    }
+    else {
+        __i = __i * 3 + 1
+    }
+
+    execution_stack.add(STATE_PART)
+    execution_stack.add(STATE_CHECK)
+
+    #push_stack(__i, __new_d, 67)
+}
+
+#macro state_part() {
+    print("This line is only to show that the recursion can be in the middle of the code!")
+    nl()
+
+    // Set the return value
+    stack[top - 3] = stack[top]
+
+    #pop_stack()
+}
+
+// i and d are the function arguments
+#macro dispatch(i, d) {
+    execution_stack.empty()
+    stack.empty()
+    top = -1
+
+    #push_stack($i, $d, 67)
+
+    execution_stack.add(STATE_CHECK)
+
+    for ;execution_stack.len() > 0; {
+        var __top = execution_stack.len() - 1
+        var __top_val = execution_stack[__top]
+
+        var __valid = 0
+
+        // Dispatch
+        if (__top_val == STATE_CHECK) {
+            #state_check()
+
+            __valid = 1
+        }
+        if (__top_val == STATE_RECURSE) {
+            #state_recurse()
+
+            __valid = 1
+        }
+        if (__top_val == STATE_PART) {
+            #state_part()
+
+            __valid = 1
+        }
+
+        if (not(__valid)) {
+            print("Unkown state :'")
+            printNum(__top_val)
+            print("'!")
+            nl()
+        }
+
+        execution_stack.remove(__top)
+    }
+}
+
+#dispatch(521, 0)
