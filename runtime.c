@@ -240,8 +240,9 @@ void rt_get_mouse_x(int idx)   { film[idx] = GetMousePosition().x; }
 void rt_get_mouse_y(int idx)   { film[idx] = GetMousePosition().y; }
 void rt_sleep(int idx)         { if (film[idx] > 0) usleep(film[idx] * 1000.0); }
 void rt_set_color(int idx)     { uint64_t tmp = film[idx]; memcpy(&color, &tmp, 4); }
-void rt_mouse_pressed(int btn, int idx) 
+void rt_mouse_pressed(int btn_idx, int idx) 
 { 
+	int btn = film[btn_idx];
 	int raybtn;
 	switch (btn)
 	{
