@@ -175,6 +175,8 @@ void rt_time(int dst)
 
 void main()
 {
+	SetTraceLogLevel(LOG_ERROR);
+
 	extern void _compiled_entry();
 	_compiled_entry();
 }
