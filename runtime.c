@@ -27,7 +27,7 @@ void rt_print(int base, int len)
 void rt_print_numbers(int base, int len)
 {
 	for (int i = 0; i < len; i++)
-		printf("%f", film[base + i]);
+		printf("%.2f", film[base + i]);
 }
 void rt_update_console()
 {
@@ -111,7 +111,7 @@ void rt_add_list(int idx, int src)
 	_inc_len(l);
 	l->buf[l->len - 1] = film[src];
 }
-void rt_print_list(int idx)
+void rt_print_vector(int idx)
 {
 	list_t* l = _list_get(idx);
 	size_t len = l->len;
@@ -123,7 +123,7 @@ void rt_print_list(int idx)
 
 	printf("%s", buf);
 }
-void rt_print_list_numbers(int idx)
+void rt_print_vector_numbers(int idx)
 {
 	list_t* l = _list_get(idx);
 	size_t len = l->len;
@@ -131,7 +131,7 @@ void rt_print_list_numbers(int idx)
 	printf("[");
 	for (int i = 0; i < len; i++)
 		printf(
-			i < (len - 1) ? "%f, " : "%f", 
+			i < (len - 1) ? "%.2f, " : "%.2f", 
 			l->buf[i]
 		);
 	printf("]\n");
