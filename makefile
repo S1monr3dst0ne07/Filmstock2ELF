@@ -13,7 +13,7 @@ main: .FORCE build.o runtime.o
 		
 
 build.o: .FORCE
-	python3 main.py tmp.fs
+	python3 main.py prg/collatz.fs
 	fasm build.asm build.o -m 1000000
 
 runtime.o: .FORCE runtime.c
