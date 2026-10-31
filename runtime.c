@@ -164,6 +164,18 @@ void rt_length_of_list(int idx, int len)
 {
 	film[len] = (double)(_list_get(idx)->len);
 }
+void rt_remove_at_list(int list_idx, int remove_idx) 
+{
+	int rm = film[remove_idx];
+	list_t* l = _list_get(list_idx);
+	double* rm_ptr= l->buf + rm;
+
+	l->len--;
+	memcpy(
+		rm_ptr, rm_ptr+1, 
+		(l->len - rm) * sizeof(double)
+	);
+}
 
 
 void rt_time(int dst)
