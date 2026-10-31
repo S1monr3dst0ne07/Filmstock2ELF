@@ -54,7 +54,7 @@ void rt_power(int a, int b, int dst)
 
 	film[dst] = res;
 }
-void rt_modulo(int a, int b, int dst)
+void rt_mod(int a, int b, int dst)
 {
 	double num  = film[a];
 	double base = film[b];
