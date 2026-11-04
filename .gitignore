@@ -1,4 +1,6 @@
 *.o
 *.asm
+*.fs
 main
 Filmstock.jar
+__pycache__

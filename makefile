@@ -1,6 +1,8 @@
 
+SHELL := /bin/bash
+
 run: .FORCE main
-	./main
+	time ./main
 
 main: .FORCE build.o runtime.o
 	cc -o main       \
@@ -13,7 +15,8 @@ main: .FORCE build.o runtime.o
 		
 
 build.o: .FORCE
-	python3 main.py prg/collatz.fs
+	python3 src/main.py tmp.fs
+	#python3 src/main.py prg/3d_renderer.fs
 	fasm build.asm build.o -m 1000000
 
 runtime.o: .FORCE runtime.c
