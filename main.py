@@ -128,7 +128,7 @@ class IrNode:
 			case Opcode.DIVIDE  : base_arith("divsd xmm0, xmm1")
 			case Opcode.NOT     :
 				emit(f"movq xmm0, [film+{ptr1}]")
-				emit( "movq xmm1, [_float_zero]")
+				emit( "pxor xmm1, xmm1")
 				emit("cmpsd xmm0, xmm1, 0")
 				emit(f"movq [film+{ptr2}], xmm0")
 				normalize(ptr2)
@@ -146,12 +146,9 @@ class IrNode:
 			case Opcode.JUMP: 
 				emit(f"jmp inst_{jmp_decode(arg1)}")
 			case Opcode.JUMP_IF: 
-				emit(f"movq xmm0, [film+{ptr1}]")
-				emit(f"movq xmm1, [_float_zero]")
-				emit("cmpsd xmm0, xmm1, 0")
-				emit("movq rax, xmm0")
-				emit(f"test rax, rax")
-				emit(f"jz inst_{jmp_decode(arg2)}")
+				emit(f"pxor xmm0, xmm0")
+				emit(f"ucomisd xmm0, [film+{ptr1}]")
+				emit(f"jne inst_{jmp_decode(arg2)}")
 
 			case Opcode.IS_GREATER:
 				base_arith("cmpsd xmm0, xmm1, 14")
@@ -251,7 +248,6 @@ class FsFile:
 			emit(f"dq {value}")
 
 		emit("_float_one : dq 1.0")
-		emit("_float_zero: dq 0.0")
 
 		return '\n'.join(output)
 
