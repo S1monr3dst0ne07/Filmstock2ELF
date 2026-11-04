@@ -20,6 +20,10 @@ class Node:
 	# node is referenced by jump
 	is_refed : bool = False
 
+	# node has been stripped by optimizer,
+	# but must remain because it's referenced
+	is_stripped : bool = False
+
 	@classmethod
 	def parse(cls, read_bytes):
 		return cls(
@@ -54,6 +58,8 @@ class Node:
 
 		if self.is_refed:
 			ctx.emit(f"inst_{id(self)}:")
+		if self.is_stripped:
+			return
 
 		def base_arith(inst):
 			ctx.emit(f"movq xmm0, [film + {ptr1}]")
@@ -146,9 +152,12 @@ class NodeList:
 	def optimize(self):
 		# defer-copy optimization
 		aliases = {}
+		idx = 0
 
-		def mat(idx):
+		def mat():
 			# materialize presisting copies
+			nonlocal idx
+
 			for dst, src in aliases.items():
 				self.nodes.insert(idx, Node(
 					opcode = opcodes.Opcode.COPY,
@@ -157,23 +166,26 @@ class NodeList:
 					arg3   = 0,
 				))
 
+			idx += len(aliases)
+			aliases.clear()
+
 		def lookup(idx):
 			# follow links back to true source
 			while idx in aliases:
 				idx = aliases[idx]
 			return idx
 
-		idx = 0
 		while idx < len(self.nodes):
 			node = self.nodes[idx]
-			idx += 1
+
+			if node.is_refed:
+				mat()
 
 			match node.opcode.name.lower():
 				case "copy":
-					if node.arg1 != node.arg2:
-						aliases[node.arg2] = lookup(node.arg1)
-					self.nodes.remove(node)
-					idx -= 1
+					dst, src = node.arg2, lookup(node.arg1)
+					if dst != src: aliases[dst] = src
+					node.is_stripped = True
 
 				case "add"      |\
 					 "subtract" |\
@@ -181,11 +193,13 @@ class NodeList:
 					 "divide"   :
 					node.arg1 = lookup(node.arg1)
 					node.arg2 = lookup(node.arg2)
-					del aliases[node.arg3]
+
+					if node.arg3 in aliases:
+						del aliases[node.arg3]
 
 				case x:
-					mat(idx-1)
-					idx += len(aliases)
-					aliases.clear()
+					mat()
+
+			idx += 1
 
 
