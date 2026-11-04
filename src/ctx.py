@@ -15,16 +15,19 @@ class Ctx:
 		fn_name = f"rt_{name.lower()}"
 		self.extern_syms.add(fn_name)
 
-		emit(f"mov rdi, {arg[1]}")
-		emit(f"mov rsi, {arg[2]}")
-		emit(f"mov rdx, {arg[3]}")
-		emit(f"call {fn_name}")
+		self.emit(f"mov rdi, {arg[0]}")
+		self.emit(f"mov rsi, {arg[1]}")
+		self.emit(f"mov rdx, {arg[2]}")
+		self.emit(f"call {fn_name}")
 
 	def mark_extern(self):
 		for sym in self.extern_syms:
 			self.emit(f"extrn {sym}")
 
-		
+
+	def write(self, path):
+		with open(path, 'w') as f:
+			f.write("\n".join(self.output))
 
 
 

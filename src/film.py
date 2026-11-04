@@ -42,6 +42,7 @@ class Film:
 
 		node_count = node_buffer_len // 16
 		node_list = ir.NodeList.parse(node_count, read_bytes)
+		node_list.resolve(film_init_values)
 
 		return cls(film_len, film_init_values, node_list)
 
@@ -66,10 +67,10 @@ class Film:
 		# film
 		ctx.emit("section '.data'")
 		ctx.emit("film:")
-		for i in range(self.film_len):
-			value = self.film_init_values.get(i) or 0
+		for i in range(self.length):
+			value = self.init.get(i) or 0
 			ctx.emit(f"dq {value}")
 
-		ctx.emit("_float_one : dq 1.0")
+		ctx.emit("_float_one: dq 1.0")
 
 
