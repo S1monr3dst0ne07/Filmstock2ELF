@@ -6,9 +6,7 @@ import sys
 from opcodes import Opcode
 import film
 import ir
-
-
-extern_syms = set()
+import ctx
 
 
 def compile(node, emit, file):
@@ -21,12 +19,6 @@ def compile(node, emit, file):
 		emit(f"movq xmm1, [film + {ptr2}]")
 		emit(f"{inst}")
 		emit(f"movq [film + {ptr3}], xmm0")
-
-	def runtime_call(name):
-		emit(f"mov rdi, {arg1}")
-		emit(f"mov rsi, {arg2}")
-		emit(f"mov rdx, {arg3}")
-		emit(f"call {name}")
 
 	def int2float(ptr):
 		emit(f"cvtsi2sd xmm1, [film + {ptr}]")
@@ -87,54 +79,16 @@ def compile(node, emit, file):
 			int2float(ptr3)
 
 		case x:
-			fn_name = f"rt_{x.name.lower()}"
-			runtime_call(fn_name)
-			extern_syms.add(fn_name)
-
-
-def compile(self):
-	output = []
-	emit = lambda x: output.append(x)
-
-	# headers
-	emit("format ELF64")
-
-	emit("public film")
-	emit("public _compiled_entry")
-
-	emit("section '.text'")
-	emit("_compiled_entry:")
-	emit("add rsp, 8") #remove caller address
-
-	for idx, inst in enumerate(self.insts):
-		emit(f"inst_{idx}:")
-		inst.compile(emit, self)
-
-	# mark runtime functions as external symbols
-	for sym in extern_syms:
-		emit(f"extrn {sym}")
-
-	# exit(0)
-	emit("mov rax, 60")
-	emit("mov rdi, 0")
-	emit("syscall")
-
-	# film
-	emit("section '.data'")
-	emit("film:")
-	for i in range(self.film_len):
-		value = self.film_init_values.get(i) or 0
-		emit(f"dq {value}")
-
-	emit("_float_one : dq 1.0")
-
-	return '\n'.join(output)
+			ctx.runtime_call(x.name, [arg1, arg2, arg3])
 
 
 
 def main():
+	context = ctx.Ctx()
 	fs = film.Film.load(sys.argv[1])
-	#asm = file.compile()
+	fs.nodes.optimize()
+	print(fs.nodes)
+	#fs.compile(context)
 
 	#with open("build.asm", 'w') as f:
 	#	f.write(asm)

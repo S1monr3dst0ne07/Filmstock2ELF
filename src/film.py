@@ -43,7 +43,33 @@ class Film:
 		node_count = node_buffer_len // 16
 		node_list = ir.NodeList.parse(node_count, read_bytes)
 
-		node_list.resolve()
-
 		return cls(film_len, film_init_values, node_list)
+
+
+	def compile(self, ctx):
+		ctx.emit("format ELF64")
+		ctx.emit("public film")
+		ctx.emit("public _compiled_entry")
+
+		ctx.emit("section '.text'")
+		ctx.emit("_compiled_entry:")
+		ctx.emit("add rsp, 8") #remove caller address
+
+		self.nodes.compile(ctx)
+		ctx.mark_extern()
+
+		# exit(0)
+		ctx.emit("mov rax, 60")
+		ctx.emit("mov rdi, 0")
+		ctx.emit("syscall")
+
+		# film
+		ctx.emit("section '.data'")
+		ctx.emit("film:")
+		for i in range(self.film_len):
+			value = self.film_init_values.get(i) or 0
+			ctx.emit(f"dq {value}")
+
+		ctx.emit("_float_one : dq 1.0")
+
 

@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 
 run: .FORCE main
-	time ./main
+	#time ./main
 
 main: .FORCE build.o runtime.o
 	cc -o main       \
