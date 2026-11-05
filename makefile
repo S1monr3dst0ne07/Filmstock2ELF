@@ -1,7 +1,9 @@
 
 SHELL := /bin/bash
 
-TARGET := prg/3d_renderer/main.fss
+#TARGET := prg/3d_renderer/main.fss
+#TARGET := prg/test.fss
+TARGET := prg/benchmark.fss
 
 run: .FORCE main
 	time ./main
@@ -16,7 +18,6 @@ main: .FORCE build.o runtime.o
 
 build.o: .FORCE target.fs
 	python3 src/main.py target.fs
-	#python3 src/main.py prg/3d_renderer.fs
 	fasm build.asm build.o -m 1000000
 
 target.fs: .FORCE

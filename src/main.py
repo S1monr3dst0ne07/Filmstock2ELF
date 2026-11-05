@@ -4,14 +4,15 @@ import subprocess
 import sys
 
 import film
-import ir
+import irnode
+import irlist
 import ctx
 
 
 def main():
 	context = ctx.Ctx()
 	fs = film.Film.load(sys.argv[1])
-	fs.nodes.optimize()
+	print(fs.nodes)
 	fs.compile(context)
 
 	context.write("build.asm")

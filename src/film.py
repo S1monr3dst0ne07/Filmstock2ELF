@@ -1,13 +1,14 @@
 from dataclasses import dataclass as dc
 
-import ir
+import irnode
+import irlist
 
 @dc
 class Film:
 	length : int
 	init   : list[int]
 
-	nodes  : ir.NodeList
+	nodes  : irlist.NodeList
 
 	@classmethod
 	def load(cls, path):
@@ -41,7 +42,7 @@ class Film:
 		assert node_buffer_len % 16 == 0
 
 		node_count = node_buffer_len // 16
-		node_list = ir.NodeList.parse(node_count, read_bytes)
+		node_list = irlist.NodeList.parse(node_count, read_bytes)
 		node_list.resolve(film_init_values)
 
 		return cls(film_len, film_init_values, node_list)
