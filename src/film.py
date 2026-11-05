@@ -72,6 +72,8 @@ class Film:
 			value = self.init.get(i) or 0
 			ctx.emit(f"dq {value}")
 
-		ctx.emit("_float_one: dq 1.0")
+		ctx.emit("_float_one:")
+		ctx.emit("dq 1.0")
+		ctx.emit("dq   0")
 
 

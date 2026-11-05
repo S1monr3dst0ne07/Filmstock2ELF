@@ -1,9 +1,9 @@
 
 SHELL := /bin/bash
 
-#TARGET := prg/3d_renderer/main.fss
+TARGET := prg/3d_renderer/main.fss
 #TARGET := prg/test.fss
-TARGET := prg/benchmark.fss
+#TARGET := prg/benchmark.fss
 
 run: .FORCE main
 	time ./main

@@ -67,16 +67,6 @@ class Node:
 			ctx.emit(f"{inst}")
 			ctx.emit(f"movq [film + {ptr3}], xmm0")
 
-
-		def int2float(ptr):
-			ctx.emit(f"cvtsi2sd xmm1, [film + {ptr}]")
-			ctx.emit(f"movq     [film + {ptr}], xmm1")
-		def normalize(ptr):
-			ctx.emit(f"and qword [film + {ptr}], 1")
-
-		def jmp_decode(idx):
-			return value
-
 		Opcode = opcodes.Opcode
 		match self.opcode:
 			case Opcode.COPY:
@@ -91,9 +81,11 @@ class Node:
 				ctx.emit(f"movq xmm0, [film+{ptr1}]")
 				ctx.emit("pxor xmm1, xmm1")
 				ctx.emit("cmpsd xmm0, xmm1, 0")
-				ctx.emit(f"movq [film+{ptr2}], xmm0")
-				normalize(ptr2)
-				int2float(ptr2)
+
+				ctx.emit("movq  xmm2, [_float_one]")
+				ctx.emit("andpd xmm0, xmm2")
+				ctx.emit(f"movq [film + {ptr2}], xmm0")
+
 			case Opcode.ITERATE : 
 				ctx.emit(f"movq  xmm0, [film + {ptr1}]")
 				ctx.emit(f"addsd xmm0, [_float_one]")
@@ -112,13 +104,21 @@ class Node:
 				ctx.emit(f"jne inst_{id(self.target)}")
 
 			case Opcode.IS_GREATER:
-				base_arith("cmpsd xmm0, xmm1, 14")
-				normalize(ptr3)
-				int2float(ptr3)
+				ctx.emit(f"movq xmm0, [film + {ptr1}]")
+				ctx.emit(f"movq xmm1, [film + {ptr2}]")
+				ctx.emit("cmpsd xmm0, xmm1, 14")
+
+				ctx.emit("movq  xmm2, [_float_one]")
+				ctx.emit("andpd xmm0, xmm2")
+				ctx.emit(f"movq [film + {ptr3}], xmm0")
 			case Opcode.IS_EQUAL  : 
-				base_arith("cmpsd xmm0, xmm1,  0")
-				normalize(ptr3)
-				int2float(ptr3)
+				ctx.emit(f"movq xmm0, [film + {ptr1}]")
+				ctx.emit(f"movq xmm1, [film + {ptr2}]")
+				ctx.emit("cmpsd xmm0, xmm1,  0")
+
+				ctx.emit("movq  xmm2, [_float_one]")
+				ctx.emit("andpd xmm0, xmm2")
+				ctx.emit(f"movq [film + {ptr3}], xmm0")
 
 			case x:
 				ctx.runtime_call(x.name, [arg1, arg2, arg3])
