@@ -2,6 +2,7 @@
 from dataclasses import dataclass as dc
 import irnode
 import opcodes
+from regs import Regs
 
 @dc
 class NodeList:
@@ -19,8 +20,10 @@ class NodeList:
 			node.resolve(self.nodes, init)
 		
 	def compile(self, ctx):
+		regs = Regs()
+
 		for node in self.nodes:
-			node.compile(ctx)
+			node.compile(ctx, regs)
 
 	def optimize(self):
 		# defer-copy optimization
